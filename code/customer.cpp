@@ -1,42 +1,48 @@
-#include "../include/customer.hpp"
-#include <iostream>
-#include <string>
+#include "/include/customer.hpp"
 
-/*
-customer::customer(string ID,string phoneNum) : customerId(ID) , phone(phoneNum) {
-	
-	reservation = nullptr;
-}
-*/
-void customer::signup() {
-	string pass1; string pass2;
-	
-	personalAcc.level = privilege::CUSTOMER;
+int sqlite3_prepare_v2(
+  sqlite3 *db,            /* Database handle */
+  const char *zSql,       /* SQL statement, UTF-8 encoded */
+  int nByte,              /* Maximum length of zSql in bytes. */
+  sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
+  const char **pzTail     /* OUT: Pointer to unused portion of zSql */
+);
 
-	cout << "Enter email: ";
-	cin.ignore();
-	cin >> personalAcc.email;
-	// if (emailExists(personalAcc.email)) {
-//     cout << "Email already registered!" << endl;
-//     return;
-// }
-
-	while ( true ) 
+void Customer::viewMovies()
 {
-		cout << "Enter password: "; cin >> pass1;
-		cout << "Re-type password: "; cin >> pass2;
 
-		if (pass1 == pass2) {
-			cout << "account created Successfuly";
-			personalAcc.password = pass2;
+    const char* sql = "SELECT movie_id, title, genre, rating, description FROM movies;";
+    sqlite3_stmt* stmt;
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        std::cerr << "Failed to parse SQL Query";
+        return;
+    }
 
-			return;
-		}
-		else {
-			cout << "Password doesnt match" << endl;
+    std::cout << "\nAvailable Movies are\n";
+    while (sqlite3_step(stmt) == SQLITE3_ROW)
+    {
+        std::cout   << "ID: " << sqlite3_column_int(stmt, 0)
+                    << ", Title: " << sqlite3_column_text(stmt, 1)
+                    << ", Genre: " << sqlite3_column_text(stmt, 2)
+                    << ", Rating: " << sqlite3_column_double(stmt, 3)
+                    << ", Desc: " << sqlite3_column_text(stmt, 4) << std::endl;
+    }
+    sqlite3_finalize(stmt);
+}
 
-		}
-	}
 
+void Customer::reserveMovie() {
+    int movie_id, num_tickets;
+    std::cout << "Enter Movie ID to make a reservation: ";
+    std::cin >> movie_id;
+    std::cout << "Number of tickets: ";
+    std::cin >> num_tickets;
 
+    std::string sql = "INSERT INTO reservations (customer_id, showtime_id, num_tickets) "
+                      "VALUES (" + std::to_string(user_id) + "," +
+                      std::to_string(movie_id) + "," +
+                      std::to_string(num_tickets) + ");";
+    if (executeSQL(db, sql))
+        std::cout << "Reservation made successfully!\n";
 }

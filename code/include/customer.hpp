@@ -1,25 +1,14 @@
 #ifndef CSUTOMER_HPP
 #define CUSTOMER_HPP
 
-#include <string>
-#include <member.hpp>
-//#include <reservation.hpp>
+#include "../sqlite3.h"
 
-class customer: public member
-{
-private:
-    
-    string customerId;
-    string phone;
-    reservation* reservations;
+class Customer {
+    sqlite3* db;
+    int user_id;
 public:
-
-    customer();
-    void signup() override;
-    void reserveSeats();
-    void viewAvailableMovies();
-    void cancelReservation();
-
+    Customer(sqlite3* database, int uid);
+    void viewMovies();
+    void reserveMovie();
 };
-
-#endif
+#endif // CUSTOMER_H
